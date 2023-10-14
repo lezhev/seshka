@@ -8,7 +8,7 @@ class SellerTest(unittest.TestCase):
         Seller.set_seller_name(2, 'Gosha')
 
     def test_set_item(self) -> None:
-        item: Item = Item('1', 'a', 5, 'c', 2, {'disco': 1, 'zombie': 1, 'game': 0})
+        item: Item = Item('1', 'a', 5, 'c', 'a', {'disco': 1, 'zombie': 1, 'game': 0})
         Seller.set_item(1, item)
 
     def test_get_item_text(self) -> None:
@@ -19,8 +19,8 @@ class SellerTest(unittest.TestCase):
 
 class ItemTest(unittest.TestCase):
     def test_str(self) -> None:
-        item: Item = Item('1', 'a', 'b', 'c', 2, {'disco': 1, 'zombie': 1, 'game': 0})
-        #print(item)
+        item: Item = Item('1', 'a', 5, 'c', 'a', {'disco': 1, 'zombie': 1, 'game': 0})
+        print(item)
 
     def test_print_db(self) -> None:
         Seller.print_database()

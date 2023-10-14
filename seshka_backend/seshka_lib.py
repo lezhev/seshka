@@ -31,8 +31,8 @@ class Item:
                 tag_list.append(key)
         tag_str: str = ', '.join(tag_list)
         result = (f'*Имя: {self.title}*\nРазмер: {self.size}\n'
-                  f'Описание: {self.description}\n\n'
-                  f'Цена: _{self.price}_\nТэги: {tag_str}')
+                  f'Описание: {self.description}\n'
+                  f'Цена: _{self.price} руб._\nТэги: {tag_str}')
         return result
 
 
@@ -67,7 +67,7 @@ class Seller:
         item_list = items_db.iloc[index]
         print(item_list)
         item: Item = Item(title=item_list.title, description=item_list.description,
-                          photo=item_list.pic, size=item_list.size,
+                          photo=item_list.pic, size=item_list.size,  # type: ignore
                           price=item_list.price, tags=item_list.tags)
         return item
 
