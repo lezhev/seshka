@@ -6,9 +6,17 @@ from seshka_backend.seshka_lib import Item, Seller
 bot = telebot.TeleBot(TOKEN_SELLER)
 
 
-
 @bot.message_handler(commands=['start'])
 def start(message):
+
+    markup = types.InlineKeyboardMarkup()
+    markup.row(types.InlineKeyboardButton('Да', callback_data='Y'),
+               types.InlineKeyboardButton('Нет', callback_data='N'))
+    bot.send_message(message.chat.id, 'Здравствуйте, вы хотите зарегистрировать ваш магазин?', reply_markup=markup)
+
+
+@bot.message_handler(commands=['action'])
+def action(message):
     markup = types.InlineKeyboardMarkup()
     btn1 = types.InlineKeyboardButton('Мои объявления', callback_data='test')
     markup.row(btn1)
@@ -24,11 +32,48 @@ def start(message):
 
 item = Item('name', 'photo', 0, 'description', 'size', {})
 tag_dict = {'disco': 0, 'y2k': 0, 'boho': 0, 'vintage': 0, 't-shorts': 0, 'shoes': 0, 'jampers': 0, 'hoody': 0}
-item_size = 0
 
 
 @bot.callback_query_handler(func=lambda call: True)
-def callback_create(call):
+def callback(call):
+    if call.data == 'Y':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Да', callback_data='Yes'))
+        markup.add(types.InlineKeyboardButton('Нет', callback_data='N'))
+        bot.send_message(call.message.chat.id,
+                         'Хорошо, вот список наших условий\n ....\n Вы с ними согласны?',
+                         reply_markup=markup)
+        bot.answer_callback_query(call.id)
+
+    if call.data == 'Yes':
+        bot.send_message(call.message.chat.id, 'Как вы будете называться?')
+        bot.register_next_step_handler(call.message, set_name_of_seller)
+
+    if call.data == 'N':
+        bot.send_message(call.message.chat.id, 'Очень жаль, но вы всегда можете вернуться, написав "/start"')
+        bot.delete_message(call.message.chat.id, call.message.message_id)
+        bot.answer_callback_query(call.id)
+
+    if call.data == 'no':
+        bot.send_message(call.message.chat.id, 'Как вы будете называться?')
+        bot.register_next_step_handler(call.message, set_name_of_seller)
+
+    if call.data == 'yes':
+        # записываем имя в бэк
+        bot.send_message(call.message.chat.id, 'Хорошо, имя записано')
+
+        markup = types.InlineKeyboardMarkup()
+        btn1 = types.InlineKeyboardButton('Мои объявления', callback_data='test')
+        markup.row(btn1)
+        btn2 = types.InlineKeyboardButton('Создать объявление', callback_data='create')
+        btn3 = types.InlineKeyboardButton('Удалить объявление', callback_data='remove')
+        markup.row(btn2, btn3)
+        btn4 = types.InlineKeyboardButton('Уведомления', callback_data='test')
+        btn5 = types.InlineKeyboardButton('Оплата', callback_data='test')
+        markup.row(btn4, btn5)
+
+        bot.send_message(call.message.chat.id, 'Привет, что вы хотите сделать?', reply_markup=markup)
+
     if call.data == 'create':
         bot.send_message(call.message.chat.id, 'Укажите название вещи')
         bot.register_next_step_handler(call.message, set_title)
@@ -39,6 +84,8 @@ def callback_create(call):
         bot.answer_callback_query(call.id)
 
     if call.data == 'size_continue':
+
+        bot.edit_message_text(f'Укажите размер вещи: {item.size.upper()}', call.message.chat.id, call.message.message_id)
 
         markup = types.InlineKeyboardMarkup()
         btn1 = types.InlineKeyboardButton('disco', callback_data='disco')
@@ -54,6 +101,8 @@ def callback_create(call):
 
     if call.data == 'styles_continue':
 
+        bot.edit_message_text(f'Укажите теги по стилю: нада сделать', call.message.chat.id, call.message.message_id)
+
         markup = types.InlineKeyboardMarkup()
         btn1 = types.InlineKeyboardButton('t-shorts', callback_data='t-shorts')
         btn2 = types.InlineKeyboardButton('shoes', callback_data='shoes')
@@ -68,17 +117,32 @@ def callback_create(call):
 
     if call.data == 'type_continue':
 
+        bot.edit_message_text(f'Укажите теги по типу: нада сделать', call.message.chat.id, call.message.message_id)
+
         markup = types.InlineKeyboardMarkup()
-        btn1 = types.InlineKeyboardButton('Подтвердить', callback_data='test')
-        btn2 = types.InlineKeyboardButton('Редактировать', callback_data='test')
-        btn3 = types.InlineKeyboardButton('Отменить', callback_data='test')
-        markup.row(btn1, btn2, btn3)
+        btn1 = types.InlineKeyboardButton('Подтвердить', callback_data='accept')
+        btn2 = types.InlineKeyboardButton('Отменить', callback_data='cancel')
+        markup.row(btn1, btn2)
 
         bot.send_message(call.message.chat.id, 'отлично, вот ваше объявление')
         item.tags = tag_dict
         bot.send_message(call.message.chat.id, item.__str__(), reply_markup=markup, parse_mode='Markdown')
 
         bot.answer_callback_query(call.id)
+
+    if call.data == 'accept':
+        Seller.set_item(call.message.chat.id, item)
+
+    if call.data == 'cancel':
+
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        markup.add(types.InlineKeyboardButton('Нет, подтвердить сохранение', callback_data='accept'))
+        markup.add(types.InlineKeyboardButton('Отменить', callback_data='delete'))
+
+        bot.send_message(call.message.chat.id, 'Точно отменить?', reply_markup=markup)
+
+    if call.data == 'delete':
+        pass
 
     if call.data == 'remove':
         pass
@@ -95,6 +159,18 @@ def callback_create(call):
         bot.answer_callback_query(call.id)
 
 
+@bot.message_handler()
+def set_name_of_seller(message):
+    markup = types.InlineKeyboardMarkup()
+    markup.add(types.InlineKeyboardButton('Да', callback_data='yes'),
+               types.InlineKeyboardButton('Нет', callback_data='no'))
+
+    bot.send_message(message.chat.id,
+                     f'Это ваше название?\n <b>{str(message.text)}</b>',
+                     parse_mode='html',
+                     reply_markup=markup)
+
+
 @bot.message_handler(content_types=['text'])
 def set_title(message):
     item.title = str(message.text)
@@ -107,14 +183,14 @@ def set_photo(message):
     try:
         message.photo[len(message.photo)-1]
     except TypeError:
-        bot.send_message(message.chat.id, 'неверный  формат, попробуйте снова')
+        bot.send_message(message.chat.id, 'Неверный  формат, попробуйте снова')
         bot.register_next_step_handler(message, set_photo)
         return
 
     raw = str(message.photo[len(message.photo)-1].file_id)
-    file_info = bot.get_file(raw)
-    downloaded_file = bot.download_file(file_info.file_path)
-    item.photo = downloaded_file
+    # file_info = bot.get_file(raw)
+    # downloaded_file = bot.download_file(file_info.file_path)
+    item.photo = raw
     bot.send_message(message.chat.id, 'Укажите цену вещи')
     bot.register_next_step_handler(message, set_price)
 
