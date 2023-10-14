@@ -20,20 +20,20 @@ class Item:
     ad_date: str
 
 class Seller:
-    def __new__(cls, id: int):
+    def __new__(cls, chat_id: int):
         pass
 
-    def __init__(self, id: int):
+    def __init__(self, chat_id: int):
         pass
 
     def set_item(self, item: Item):
         pass
 
 class Buyer:
-    def __new__(cls, id: int):
+    def __new__(cls, chat_id: int):
         pass
 
-    def __init__(self, id: int):
+    def __init__(self, chat_id: int):
         pass
 
     def get_item(self, item: Item):
