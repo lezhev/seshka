@@ -5,9 +5,10 @@ import os
 import datetime
 
 
-# seller_sub_db: pd.DataFrame = pd.read_feather('databases/seller_subscription.feather')
+# seller_sub_db: pd.DataFrame = pd.read_feather('databases/seller_names.feather')
 # favorites_db: pd.DataFrame = pd.read_feather('databases/buyers_favorite.feather')
 # buyer_sub_db: pd.DataFrame = pd.read_feather('databases/buyers_subscription.feather')
+
 # directory = os.path.dirname(os.path.abspath(__file__))
 # items_db = pd.DataFrame(columns = ['pic', 'seller_id', 'title',
 #                                    'description', 'size', 'price',
@@ -36,6 +37,16 @@ class Item:
 
 
 class Seller:
+    @staticmethod
+    def set_seller_name(seller_id: int, seller_name: str) -> None:
+        directory = os.path.dirname(os.path.abspath(__file__))
+        sellers_db: pd.DataFrame = pd.read_feather(directory + '\databases\seller_names.feather')
+        if not sellers_db[sellers_db['seller_id'] == seller_id].empty:
+            return
+        sellers_db.loc[len(sellers_db.index) + 1] = [seller_id, seller_name]
+        sellers_db.to_feather(directory + '\databases\seller_names.feather')
+        print(sellers_db)
+
     # Adding item to items.feather
     @staticmethod
     def set_item(seller_id: int, item: Item) -> None:

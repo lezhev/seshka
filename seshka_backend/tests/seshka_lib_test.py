@@ -4,6 +4,9 @@ from seshka_backend.seshka_lib import Seller, Buyer, Item
 
 
 class SellerTest(unittest.TestCase):
+    def test_set_seller_name(self) -> None:
+        Seller.set_seller_name(2, 'Gosha')
+
     def test_set_item(self) -> None:
         item: Item = Item('1', 'a', 5, 'c', 2, {'disco': 1, 'zombie': 1, 'game': 0})
         Seller.set_item(1, item)
