@@ -16,11 +16,11 @@ import datetime
 
 @dataclass
 class Item:
-    photo: str
     title: str
+    photo: str
+    price: int
     description: str
     size: str
-    price: int
     tags: dict
 
     def __str__(self) -> str:

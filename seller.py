@@ -1,9 +1,10 @@
 import telebot
 from telebot import types
 from config import TOKEN_SELLER
-from seshka_backend.seshka_lib import Item, Seller, Buyer
+from seshka_backend.seshka_lib import Item, Seller
 
 bot = telebot.TeleBot(TOKEN_SELLER)
+
 
 
 @bot.message_handler(commands=['start'])
@@ -21,7 +22,7 @@ def start(message):
     bot.send_message(message.chat.id, 'Привет, что вы хотите сделать?', reply_markup=markup)
 
 
-item = Item(0, 0, 'qwer', 'tyui', 'asd', 0, {}, '123')
+item = Item('name', 'photo', 0, 'description', 'size', {})
 tag_dict = {'disco': 0, 'y2k': 0, 'boho': 0, 'vintage': 0, 't-shorts': 0, 'shoes': 0, 'jampers': 0, 'hoody': 0}
 item_size = 0
 
@@ -101,8 +102,15 @@ def set_title(message):
     bot.register_next_step_handler(message, set_photo)
 
 
-@bot.message_handler(content_types=['photo'])
+@bot.message_handler()
 def set_photo(message):
+    try:
+        message.photo[len(message.photo)-1]
+    except TypeError:
+        bot.send_message(message.chat.id, 'неверный  формат, попробуйте снова')
+        bot.register_next_step_handler(message, set_photo)
+        return
+
     raw = str(message.photo[len(message.photo)-1].file_id)
     file_info = bot.get_file(raw)
     downloaded_file = bot.download_file(file_info.file_path)
@@ -113,6 +121,13 @@ def set_photo(message):
 
 @bot.message_handler(content_types=['text'])
 def set_price(message):
+    try:
+        int(message.text)
+    except TypeError:
+        bot.send_message(message.chat.id, 'неверный  формат, попробуйте снова')
+        bot.register_next_step_handler(message, set_photo)
+        return
+
     item.price = int(message.text)
     bot.send_message(message.chat.id, 'Опишите эту вещь')
     bot.register_next_step_handler(message, set_description)
