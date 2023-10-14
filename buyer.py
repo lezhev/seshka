@@ -1,7 +1,7 @@
 import telebot
 from telebot import types
 
-bot = telebot.TeleBot('6506191359:AAE-NC1rl4CwZMGQ3TaZasB73PU5uS53_Vc')
+bot = telebot.TeleBot('6350781499:AAEgtisrb_hnYLtBGL3Z3iNn1x8D16h6cVQ')
 
 
 @bot.message_handler(commands=['start'])
@@ -16,7 +16,6 @@ def start(message):
     markup.row(btn3, btn4)
 
     bot.send_message(message.chat.id, 'Привет, что вы хотите сделать?', reply_markup=markup)
-
 
 bot.polling(none_stop=True)
 
