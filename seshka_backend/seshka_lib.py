@@ -34,30 +34,50 @@ class Item:
                   f'Цена: _{self.price}_\nТэги: {tag_str}')
         return result
 
+
 class Seller:
-    #Adding item to items.feather
+    # Adding item to items.feather
     @staticmethod
     def set_item(seller_id: int, item: Item) -> None:
         directory = os.path.dirname(os.path.abspath(__file__))
         items_db: pd.DataFrame = pd.read_feather(directory + '\databases\items.feather')
         current_date = datetime.date.today().isoformat()
         items_db.loc[len(items_db.index) + 1] = [item.photo, seller_id,
-                           item.title, item.description,
-                           item.size, item.price,
-                           item.tags, current_date]
+                                                 item.title, item.description,
+                                                 item.size, item.price,
+                                                 item.tags, current_date]
         items_db.to_feather(directory + '\databases\items.feather')
-        #print(items_db)
+        # print(items_db)
 
     @staticmethod
-    def get_item_text(index: int) -> str:
+    def get_item_text(index: int) -> Item:
         directory = os.path.dirname(os.path.abspath(__file__))
         items_db: pd.DataFrame = pd.read_feather(directory + '\databases\items.feather')
         item_list = items_db.iloc[index]
         print(item_list)
-        item: Item =  Item(title=item_list.title, description=item_list.description,
-                           photo=item_list.pic, size=item_list.size,
-                           price=item_list.price, tags=item_list.tags)
+        item: Item = Item(title=item_list.title, description=item_list.description,
+                          photo=item_list.pic, size=item_list.size,
+                          price=item_list.price, tags=item_list.tags)
         return item
+
+    @staticmethod
+    def get_seller_items(chat_id: int) -> list[Item]:
+        directory = os.path.dirname(os.path.abspath(__file__))
+        items_db: pd.DataFrame = pd.read_feather(directory + '\databases\items.feather')
+        indexes = items_db[items_db['seller_id'] == chat_id].index
+        list_of_items: list[Item] = []
+        for i in indexes - 1:
+            item: Item = Item(title=items_db.iloc[i].title, description=items_db.iloc[i].description,
+                              photo=items_db.iloc[i].pic, size=items_db.iloc[i].size,
+                              price=items_db.iloc[i].price, tags=items_db.iloc[i].tags)
+            list_of_items.append(item)
+        return list_of_items
+
+    @staticmethod
+    def print_database() -> None:
+        directory = os.path.dirname(os.path.abspath(__file__))
+        items_db: pd.DataFrame = pd.read_feather(directory + '\databases\items.feather')
+        print(items_db)
 
 
 class Buyer:
