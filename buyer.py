@@ -1,7 +1,8 @@
 import telebot
 from telebot import types
+from config import TOKEN_BUYER
 
-bot = telebot.TeleBot('6350781499:AAEgtisrb_hnYLtBGL3Z3iNn1x8D16h6cVQ')
+bot = telebot.TeleBot(TOKEN_BUYER)
 
 
 @bot.message_handler(commands=['start'])
@@ -16,6 +17,7 @@ def start(message):
     markup.row(btn3, btn4)
 
     bot.send_message(message.chat.id, 'Привет, что вы хотите сделать?', reply_markup=markup)
+
 
 bot.polling(none_stop=True)
 
