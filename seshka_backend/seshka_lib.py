@@ -38,15 +38,16 @@ class Item:
 
 class Seller:
     @staticmethod
-    def set_seller_name(seller_id: int, seller_name: str) -> None:
+    def set_seller_name(seller_id: int, seller_name: str, seller_link: str) -> None:
         directory = os.path.dirname(os.path.abspath(__file__))
         sellers_db: pd.DataFrame = pd.read_feather(directory + '\databases\seller_names.feather')
-        #sellers_db = pd.DataFrame(columns=['seller_id', 'seller_name'])
+        # sellers_db = pd.DataFrame(columns=['seller_id', 'seller_name', 'seller_link'])
         if sellers_db['seller_id'].eq(seller_id).any():
             sellers_db.loc[(sellers_db.seller_id == seller_id), 'seller_name'] = seller_name
+            sellers_db.loc[(sellers_db.seller_id == seller_id), 'seller_link'] = seller_link
             sellers_db.to_feather(directory + '\databases\seller_names.feather')
             return
-        sellers_db.loc[len(sellers_db.index) + 1] = [seller_id, seller_name]
+        sellers_db.loc[len(sellers_db.index) + 1] = [seller_id, seller_name, seller_link]
         sellers_db.to_feather(directory + '\databases\seller_names.feather')
         print(sellers_db)
 
@@ -58,6 +59,15 @@ class Seller:
             return ''
         y = sellers_db[sellers_db['seller_id'].isin([seller_id])]
         return y.iloc[0].seller_name
+
+    @staticmethod
+    def get_seller_link():
+        directory = os.path.dirname(os.path.abspath(__file__))
+        sellers_db: pd.DataFrame = pd.read_feather(directory + '\databases\seller_names.feather')
+        if not sellers_db['seller_id'].eq(seller_id).any():
+            return ''
+        y = sellers_db[sellers_db['seller_id'].isin([seller_id])]
+        return y.iloc[0].seller_link
 
     @staticmethod
     def del_seller_name(seller_id: int):
@@ -126,11 +136,17 @@ class Seller:
 
 
 class Buyer:
-    def __new__(cls, chat_id: int):
-        pass
-
-    def __init__(self, chat_id: int):
-        pass
-
-    def get_item(self, item: Item):
-        pass
+    # @staticmethod
+    # def get_shops(chat_id: int):
+    #     directory = os.path.dirname(os.path.abspath(__file__))
+    #     shops_db: pd.DataFrame = pd.read_feather(directory + '\databases\buyers_subscriptions.feather')
+    #     indexes = items_db[items_db['seller_id'] == chat_id].index
+    #     list_of_items: list[Item] = []
+    #     list_of_id: list[int] = []
+    #     for i in indexes:
+    #         item: Item = Item(title=items_db.iloc[i].title, description=items_db.iloc[i].description,
+    #                           photo=items_db.iloc[i].pic, size=items_db.iloc[i].size,
+    #                           price=items_db.iloc[i].price, tags=items_db.iloc[i].tags)
+    #         list_of_items.append(item)
+    #         list_of_id.append(i)
+    #     return list_of_items, list_of_id

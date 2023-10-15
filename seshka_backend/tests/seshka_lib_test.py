@@ -5,7 +5,7 @@ from seshka_backend.seshka_lib import Seller, Buyer, Item
 
 class SellerTest(unittest.TestCase):
     def test_set_seller_name(self) -> None:
-        Seller.set_seller_name(4, 'Grigorya')
+        Seller.set_seller_name(4, 'Grigorya', 'tg.com/Huy')
 
     def test_set_item(self) -> None:
         item: Item = Item('1', 'a', 5, 'c', 'a', {'disco': 1, 'zombie': 1, 'game': 0})
