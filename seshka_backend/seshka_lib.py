@@ -4,11 +4,11 @@ from dataclasses import dataclass
 import os
 import datetime
 
-#
+
 # seller_sub_db: pd.DataFrame = pd.read_feather('databases/seller_names.feather')
-# seller_sub_db = pd.DataFrame(columns=['seller_id'])
+# seller_sub_db = pd.DataFrame(columns=['seller_id', 'seller_name', 'seller_link'])
 # favorites_db: pd.DataFrame = pd.read_feather('databases/buyers_favorites.feather')
-#
+
 # directory = os.path.dirname(os.path.abspath(__file__))
 # items_db = pd.DataFrame(columns = ['pic', 'seller_id', 'title',
 #                                    'description', 'size', 'price',
@@ -269,7 +269,4 @@ class Buyer:
         favs_db: pd.DataFrame = pd.read_feather(directory + r'\databases\buyers_favorites.feather')
         print(f'Subs:\n{subs_db}\nFavs\n{favs_db}')
 
-item: Item = Item('1', 'a', 5, 'c', 'a', {'disco': 1, 'zombie': 1, 'game': 0}, 4)
-Seller.set_item(4, item)
-print(Buyer.get_subs_items(1))
 

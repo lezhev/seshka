@@ -13,7 +13,6 @@ def strt(message):
 def start(message):
 
     if Seller.get_seller_name(message.chat.id) == '':
-
         markup = types.InlineKeyboardMarkup()
         markup.row(types.InlineKeyboardButton('Да', callback_data='Y'),
                    types.InlineKeyboardButton('Нет', callback_data='N'))
@@ -84,21 +83,23 @@ def callback(call):
         bot.send_message(call.message.chat.id, 'Как вы будете называться?')
         bot.register_next_step_handler(call.message, set_name_of_seller)
 
+    if call.data == 'no_link':
+        bot.send_message(call.message.chat.id, 'Введите вашу ссылку')
+        bot.register_next_step_handler(call.message, set_link_of_seller)
+
     if call.data == 'yes':
 
         bot.edit_message_text('Теперь это ваше название',
                               call.message.chat.id, call.message.message_id)
-        markup = types.InlineKeyboardMarkup()
-        btn1 = types.InlineKeyboardButton('Мои объявления', callback_data='my_ad')
-        markup.row(btn1)
-        btn2 = types.InlineKeyboardButton('Создать объявление', callback_data='create')
-        btn3 = types.InlineKeyboardButton('Удалить объявление', callback_data='remove')
-        markup.row(btn2, btn3)
-        btn4 = types.InlineKeyboardButton('Уведомления', callback_data='test')
-        btn5 = types.InlineKeyboardButton('Оплата', callback_data='test')
-        markup.row(btn4, btn5)
+        bot.send_message(call.message.chat.id, 'Введите *ссылку* на ваш магазин', parse_mode='Markdown')
+        bot.register_next_step_handler(call.message, set_link_of_seller)
 
-        bot.send_message(call.message.chat.id, 'Привет, что вы хотите сделать?', reply_markup=markup)
+    if call.data == 'yes_link':
+
+        bot.edit_message_text('Теперь это ваше название',
+                              call.message.chat.id, call.message.message_id)
+        bot.send_message(call.message.chat.id, 'Вы успешно зарегистрировались')
+        bot.register_next_step_handler(call.message, start)
 
     if call.data == 'create':
         bot.edit_message_text('СОЗДАЁМ ОБЪЯВЛЕНИЕ',
@@ -197,6 +198,16 @@ def callback(call):
     if call.data == 'del':
         item_list, id_list = Seller.get_seller_items(call.message.chat.id)
 
+@bot.message_handler()
+def set_link_of_seller(message):
+    markup = types.InlineKeyboardMarkup()
+    markup.add(types.InlineKeyboardButton('Да', callback_data='yes_link'),
+               types.InlineKeyboardButton('Нет', callback_data='no_link'))
+    Seller.set_seller_name(message.chat.id, str(message.text), 'link')
+    bot.send_message(message.chat.id,
+                     f'Это ваша ссылка?\n<b>{str(message.text)}</b>',
+                     parse_mode='html',
+                     reply_markup=markup)
 
 @bot.message_handler()
 def set_name_of_seller(message):
