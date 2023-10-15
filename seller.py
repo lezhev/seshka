@@ -5,6 +5,9 @@ from seshka_backend.seshka_lib import Item, Seller
 
 bot = telebot.TeleBot(TOKEN_SELLER)
 
+@bot.message_handler()
+def strt(message):
+    start(message)
 
 @bot.message_handler(commands=['start'])
 def start(message):
