@@ -23,6 +23,9 @@ class SellerTest(unittest.TestCase):
     def test_del_seller_name(self) -> None:
         Seller.del_seller_name(4)
 
+    def test_del_item(self) -> None:
+        Seller.del_seller_items(16)
+
 class ItemTest(unittest.TestCase):
     def test_str(self) -> None:
         item: Item = Item('1', 'a', 5, 'c', 'a', {'disco': 1, 'zombie': 1, 'game': 0})

@@ -64,6 +64,7 @@ class Seller:
         directory = os.path.dirname(os.path.abspath(__file__))
         sellers_db: pd.DataFrame = pd.read_feather(directory + '\databases\seller_names.feather')
         sellers_db = sellers_db[sellers_db.seller_id != seller_id]
+        sellers_db = sellers_db.reset_index(drop=True)
         print(sellers_db)
         sellers_db.to_feather(directory + '\databases\seller_names.feather')
 
@@ -92,17 +93,29 @@ class Seller:
         return item
 
     @staticmethod
-    def get_seller_items(chat_id: int) -> list[Item]:
+    def get_seller_items(chat_id: int) -> tuple[list[Item], list[int]]:
         directory = os.path.dirname(os.path.abspath(__file__))
         items_db: pd.DataFrame = pd.read_feather(directory + '\databases\items.feather')
         indexes = items_db[items_db['seller_id'] == chat_id].index
         list_of_items: list[Item] = []
-        for i in indexes - 1:
+        list_of_id: list[int] = []
+        for i in indexes:
             item: Item = Item(title=items_db.iloc[i].title, description=items_db.iloc[i].description,
                               photo=items_db.iloc[i].pic, size=items_db.iloc[i].size,
                               price=items_db.iloc[i].price, tags=items_db.iloc[i].tags)
             list_of_items.append(item)
-        return list_of_items
+            list_of_id.append(i)
+        return list_of_items, list_of_id
+
+    @staticmethod
+    def del_seller_items(index: int):
+        directory = os.path.dirname(os.path.abspath(__file__))
+        items_db: pd.DataFrame = pd.read_feather(directory + '\databases\items.feather')
+        if index in items_db:
+            items_db.drop(index, axis=0, inplace=True)
+        items_db = items_db.reset_index(drop=True)
+        print(items_db)
+        items_db.to_feather(directory + '\databases\items.feather')
 
     @staticmethod
     def print_database() -> None:
