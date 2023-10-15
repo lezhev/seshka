@@ -181,6 +181,45 @@ class Buyer:
         subs_db.to_feather(directory + r'\databases\buyers_subscription.feather')
 
     @staticmethod
+    def get_favourites(chat_id: int) -> list[int]:
+        directory = os.path.dirname(os.path.abspath(__file__))
+        fav_db: pd.DataFrame = pd.read_feather(directory + r'\databases\buyers_favourite.feather')
+        indexes = fav_db[fav_db['buyer_id'] == chat_id].index
+        shop_ids: list[int] = []
+        for i in indexes:
+            shop_ids.append(i + 1)
+        print(shop_ids)
+        return shop_ids
+
+    @staticmethod
+    def get_fav(chat_id: int, seller_id: int) -> bool:
+        directory = os.path.dirname(os.path.abspath(__file__))
+        fav_db: pd.DataFrame = pd.read_feather(directory + r'\databases\buyers_favourite.feather')
+        fav_db = fav_db[fav_db.buyer_id == chat_id]
+        if fav_db.seller_id.eq(seller_id).any():
+            return True
+        return False
+
+    @staticmethod
+    def add_fav(chat_id: int, seller_id: int) -> None:
+        directory = os.path.dirname(os.path.abspath(__file__))
+        fav_db: pd.DataFrame = pd.read_feather(directory + r'\databases\buyers_favourite.feather')
+        subs_db_test = fav_db[fav_db.buyer_id == chat_id]
+        if subs_db_test.seller_id.eq(seller_id).any():
+            return
+        fav_db.loc[len(fav_db.index) + 1] = [chat_id, seller_id]
+        print(fav_db)
+        fav_db.to_feather(directory + r'\databases\buyers_favourite.feather')
+
+    @staticmethod
+    def remove_fav(chat_id: int, seller_id: int) -> None:
+        directory = os.path.dirname(os.path.abspath(__file__))
+        fav_db: pd.DataFrame = pd.read_feather(directory + r'\databases\buyers_favourite.feather')
+        fav_db = fav_db.drop(fav_db[(fav_db['buyer_id'] == chat_id) & (fav_db['seller_id'] == seller_id)].index)
+        print(fav_db)
+        fav_db.to_feather(directory + r'\databases\buyers_favourite.feather')
+
+    @staticmethod
     def print_database() -> None:
         directory = os.path.dirname(os.path.abspath(__file__))
         subs_db: pd.DataFrame = pd.read_feather(directory + r'\databases\buyers_subscription.feather')
