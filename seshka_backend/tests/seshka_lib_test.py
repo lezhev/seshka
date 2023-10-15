@@ -40,6 +40,9 @@ class BuyTest(unittest.TestCase):
     def test_db(self) -> None:
         Buyer.print_database()
 
+    def test_remove_sub(self):
+        Buyer.remove_sub(1, 2)
+
     def test_get_favourite(self) -> None:
         Buyer.get_favourite(1)
 

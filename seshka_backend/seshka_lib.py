@@ -173,6 +173,14 @@ class Buyer:
         subs_db.to_feather(directory + r'\databases\buyers_subscription.feather')
 
     @staticmethod
+    def remove_sub(chat_id: int, seller_id: int) -> None:
+        directory = os.path.dirname(os.path.abspath(__file__))
+        subs_db: pd.DataFrame = pd.read_feather(directory + r'\databases\buyers_subscription.feather')
+        subs_db = subs_db.drop(subs_db[(subs_db['buyer_id'] == chat_id) & (subs_db['seller_id'] == seller_id)].index)
+        print(subs_db)
+        subs_db.to_feather(directory + r'\databases\buyers_subscription.feather')
+
+    @staticmethod
     def print_database() -> None:
         directory = os.path.dirname(os.path.abspath(__file__))
         subs_db: pd.DataFrame = pd.read_feather(directory + r'\databases\buyers_subscription.feather')
