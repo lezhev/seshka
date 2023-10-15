@@ -24,15 +24,18 @@ class SellerTest(unittest.TestCase):
         Seller.del_seller_name(4)
 
     def test_del_item(self) -> None:
-        Seller.del_seller_items(16)
+        Seller.del_seller_items(19)
 
 
 class BuyTest(unittest.TestCase):
     def test_get_subs(self) -> None:
         Buyer.get_subs(1)
 
+    def test_get_all_items(self) -> None:
+        print(Buyer.get_all_items())
+
     def test_get_sub(self) -> None:
-        print(Buyer.get_sub(1, 2))
+        print(Buyer.is_sub(1, 2))
 
     def test_add_sub(self) -> None:
         Buyer.add_sub(1, 4)
@@ -43,8 +46,13 @@ class BuyTest(unittest.TestCase):
     def test_remove_sub(self):
         Buyer.remove_sub(1, 2)
 
-    def test_get_favourite(self) -> None:
-        Buyer.get_favourite(1)
+    def test_get_favorite(self) -> None:
+        Buyer.get_fav(1)
+
+    def test_is_favorite(self) -> None:
+        Buyer.is_fav(1, 2)
+
+    def test_add_favorite
 
 
 class ItemTest(unittest.TestCase):

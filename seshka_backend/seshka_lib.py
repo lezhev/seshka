@@ -6,7 +6,7 @@ import datetime
 
 
 # seller_sub_db: pd.DataFrame = pd.read_feather('databases/seller_names.feather')
-# favorites_db: pd.DataFrame = pd.read_feather('databases/buyers_favorite.feather')
+# favorites_db: pd.DataFrame = pd.read_feather('databases/buyers_favorites.feather')
 
 # directory = os.path.dirname(os.path.abspath(__file__))
 # items_db = pd.DataFrame(columns = ['pic', 'seller_id', 'title',
@@ -128,7 +128,6 @@ class Seller:
         items_db: pd.DataFrame = pd.read_feather(directory + r'\databases\items.feather')
         if index in items_db:
             items_db.drop(index, axis=0, inplace=True)
-        items_db = items_db.reset_index(drop=True)
         print(items_db)
         items_db.to_feather(directory + r'\databases\items.feather')
 
@@ -153,7 +152,7 @@ class Buyer:
         return shop_ids
 
     @staticmethod
-    def get_sub(chat_id: int, seller_id: int) -> bool:
+    def is_sub(chat_id: int, seller_id: int) -> bool:
         directory = os.path.dirname(os.path.abspath(__file__))
         subs_db: pd.DataFrame = pd.read_feather(directory + r'\databases\buyers_subscription.feather')
         subs_db = subs_db[subs_db.buyer_id == chat_id]
@@ -181,9 +180,9 @@ class Buyer:
         subs_db.to_feather(directory + r'\databases\buyers_subscription.feather')
 
     @staticmethod
-    def get_favourites(chat_id: int) -> list[int]:
+    def get_fav(chat_id: int) -> list[int]:
         directory = os.path.dirname(os.path.abspath(__file__))
-        fav_db: pd.DataFrame = pd.read_feather(directory + r'\databases\buyers_favourite.feather')
+        fav_db: pd.DataFrame = pd.read_feather(directory + r'\databases\buyers_favorite.feather')
         indexes = fav_db[fav_db['buyer_id'] == chat_id].index
         shop_ids: list[int] = []
         for i in indexes:
@@ -192,36 +191,59 @@ class Buyer:
         return shop_ids
 
     @staticmethod
-    def get_fav(chat_id: int, seller_id: int) -> bool:
+    def is_fav(chat_id: int, item_id: int) -> bool:
         directory = os.path.dirname(os.path.abspath(__file__))
-        fav_db: pd.DataFrame = pd.read_feather(directory + r'\databases\buyers_favourite.feather')
+        fav_db: pd.DataFrame = pd.read_feather(directory + r'\databases\buyers_favorite.feather')
         fav_db = fav_db[fav_db.buyer_id == chat_id]
-        if fav_db.seller_id.eq(seller_id).any():
+        if fav_db.item_id.eq(item_id).any():
             return True
         return False
 
     @staticmethod
     def add_fav(chat_id: int, seller_id: int) -> None:
         directory = os.path.dirname(os.path.abspath(__file__))
-        fav_db: pd.DataFrame = pd.read_feather(directory + r'\databases\buyers_favourite.feather')
+        fav_db: pd.DataFrame = pd.read_feather(directory + r'\databases\buyers_favorite.feather')
         subs_db_test = fav_db[fav_db.buyer_id == chat_id]
         if subs_db_test.seller_id.eq(seller_id).any():
             return
         fav_db.loc[len(fav_db.index) + 1] = [chat_id, seller_id]
         print(fav_db)
-        fav_db.to_feather(directory + r'\databases\buyers_favourite.feather')
+        fav_db.to_feather(directory + r'\databases\buyers_favorite.feather')
 
     @staticmethod
     def remove_fav(chat_id: int, seller_id: int) -> None:
         directory = os.path.dirname(os.path.abspath(__file__))
-        fav_db: pd.DataFrame = pd.read_feather(directory + r'\databases\buyers_favourite.feather')
+        fav_db: pd.DataFrame = pd.read_feather(directory + r'\databases\buyers_favorite.feather')
         fav_db = fav_db.drop(fav_db[(fav_db['buyer_id'] == chat_id) & (fav_db['seller_id'] == seller_id)].index)
         print(fav_db)
-        fav_db.to_feather(directory + r'\databases\buyers_favourite.feather')
+        fav_db.to_feather(directory + r'\databases\buyers_favorite.feather')
+
+    @staticmethod
+    def get_all_items() -> tuple[list[Item], list[int]]:
+        directory = os.path.dirname(os.path.abspath(__file__))
+        items_db: pd.DataFrame = pd.read_feather(directory + r'\databases\items.feather')
+        items_db.sort_values(by = 'ad_date', ascending= False, inplace=True)
+        print(items_db)
+        indexes = items_db.index
+        list_of_items: list[Item] = []
+        list_of_id: list[int] = []
+        for i in indexes-1:
+            item: Item = Item(title=items_db.iloc[i].title, description=items_db.iloc[i].description,
+                              photo=items_db.iloc[i].pic, size=items_db.iloc[i].size,
+                              price=items_db.iloc[i].price, tags=items_db.iloc[i].tags)
+            list_of_items.append(item)
+            list_of_id.append(i)
+        list_of_items.reverse()
+        list_of_id.reverse()
+        return list_of_items, list_of_id
+
 
     @staticmethod
     def print_database() -> None:
         directory = os.path.dirname(os.path.abspath(__file__))
         subs_db: pd.DataFrame = pd.read_feather(directory + r'\databases\buyers_subscription.feather')
-        print(f'Subs:\n{subs_db}\n')
+        favs_db: pd.DataFrame = pd.read_feather(directory + r'\databases\buyers_favorites.feather')
+        print(f'Subs:\n{subs_db}\nFavs\n{favs_db}')
+
+
 
