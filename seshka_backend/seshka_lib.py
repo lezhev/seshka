@@ -8,7 +8,7 @@ import datetime
 # seller_sub_db: pd.DataFrame = pd.read_feather('databases/seller_names.feather')
 # seller_sub_db = pd.DataFrame(columns=['seller_id'])
 # favorites_db: pd.DataFrame = pd.read_feather('databases/buyers_favorites.feather')
-
+#
 # directory = os.path.dirname(os.path.abspath(__file__))
 # items_db = pd.DataFrame(columns = ['pic', 'seller_id', 'title',
 #                                    'description', 'size', 'price',
@@ -223,13 +223,13 @@ class Buyer:
     def get_all_items() -> tuple[list[Item], list[int]]:
         directory = os.path.dirname(os.path.abspath(__file__))
         items_db: pd.DataFrame = pd.read_feather(directory + r'\databases\items.feather')
-        indexes = items_db.index
+        indexes = items_db[items_db['seller_id'] != 0].index
         list_of_items: list[Item] = []
         list_of_id: list[int] = []
-        for i in indexes-1:
-            item: Item = Item(title=items_db.iloc[i].title, description=items_db.iloc[i].description,
-                              photo=items_db.iloc[i].pic, size=items_db.iloc[i].size,
-                              price=items_db.iloc[i].price, tags=items_db.iloc[i].tags)
+        for i in indexes:
+            item: Item = Item(title=items_db.loc[i].title, description=items_db.loc[i].description,
+                              photo=items_db.loc[i].pic, size=items_db.loc[i].size,
+                              price=items_db.loc[i].price, tags=items_db.loc[i].tags)
             list_of_items.append(item)
             list_of_id.append(i)
         list_of_items.reverse()

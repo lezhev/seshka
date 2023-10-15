@@ -32,7 +32,7 @@ def action(message):
     markup.row(btn4, btn5)
 
     bot.send_message(message.chat.id, 'Что вы хотите сделать?', reply_markup=markup)
-    bot.register_next_step_handler(message, action)
+    # bot.register_next_step_handler(message, action)
 
 
 item = Item('name', 'photo', 0, 'description', 'size', {})
@@ -126,7 +126,7 @@ def callback(call):
 
     if call.data == 'styles_continue':
 
-        bot.edit_message_text(f'Укажите теги по стилю: нада сделать', call.message.chat.id, call.message.message_id)
+        bot.edit_message_text(f'Укажите теги по стилю', call.message.chat.id, call.message.message_id)
 
         markup = types.InlineKeyboardMarkup()
         btn1 = types.InlineKeyboardButton('t-shorts', callback_data='t-shorts')
@@ -142,7 +142,7 @@ def callback(call):
 
     if call.data == 'type_continue':
 
-        bot.edit_message_text(f'Укажите теги по типу: нада сделать', call.message.chat.id, call.message.message_id)
+        bot.edit_message_text(f'Укажите теги по типу', call.message.chat.id, call.message.message_id)
 
         markup = types.InlineKeyboardMarkup()
         btn1 = types.InlineKeyboardButton('Подтвердить', callback_data='accept')
@@ -219,7 +219,7 @@ def set_photo(message):
         bot.register_next_step_handler(message, set_photo)
         return
 
-    raw = str(message.photo[len(message.photo)-1].file_id)
+    raw = str(message.photo[-1].file_id)
     # file_info = bot.get_file(raw)
     # downloaded_file = bot.download_file(file_info.file_path)
     item.photo = raw

@@ -25,12 +25,10 @@ def callback(call):
     Seller.print_database()
 
     if call.data == 'surfing':
-        print('asdasda')
         item_list, id_list = Buyer.get_all_items()
-        print(item_list)
-        count = 0
-        for i in range(1):
-            bot.send_photo(call.message.chat.id, item_list[i].photo, item_list[i].__str__(), parse_mode='Markdown')
+        for i in item_list:
+            print(i)
+            bot.send_message(call.message.chat.id, i.__str__(), parse_mode='Markdown')
 
 
 bot.polling(none_stop=True)
