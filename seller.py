@@ -5,9 +5,11 @@ from seshka_backend.seshka_lib import Item, Seller
 
 bot = telebot.TeleBot(TOKEN_SELLER)
 
+
 @bot.message_handler()
 def strt(message):
     start(message)
+
 
 @bot.message_handler(commands=['start'])
 def start(message):
@@ -35,7 +37,7 @@ def action(message):
 
 
 item = Item('name', 'photo', 0, 'description', 'size', {}, 0)
-tag_dict = {'disco': 0, 'y2k': 0, 'boho': 0, 'vintage': 0, 't-shorts': 0, 'shoes': 0, 'jampers': 0, 'hoody': 0}
+tag_dict = {'Диско': 0, 'Бохо': 0, 'Y2K': 0, 'Винтаж': 0, 'Футболки': 0, 'Куртки': 0, 'Платья': 0, 'Юбки': 0}
 
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -44,7 +46,10 @@ def callback(call):
         item_list, id_list = Seller.get_seller_items(call.message.chat.id)
         count = 0
         for items in item_list:
-            bot.send_photo(call.message.chat.id, items.photo, items.__str__(), parse_mode='Markdown')
+            try:
+                bot.send_photo(call.message.chat.id, items.photo, items.__str__() + '\n' + Seller.get_seller_link(call.message.chat.id), parse_mode='Markdown')
+            except telebot.apihelper.ApiTelegramException:
+                continue
             count += 1
         bot.edit_message_text('text', call.message.chat.id, call.message.message_id-count)
         action(call.message)
@@ -96,10 +101,10 @@ def callback(call):
 
     if call.data == 'yes_link':
 
-        bot.edit_message_text('Теперь это ваше название',
+        bot.edit_message_text('Теперь это ваша ссылка',
                               call.message.chat.id, call.message.message_id)
         bot.send_message(call.message.chat.id, 'Вы успешно зарегистрировались')
-        bot.register_next_step_handler(call.message, start)
+        action(call.message)
 
     if call.data == 'create':
         bot.edit_message_text('СОЗДАЁМ ОБЪЯВЛЕНИЕ',
@@ -117,12 +122,12 @@ def callback(call):
             bot.edit_message_text(f'Укажите размер вещи: {item.it_size.upper()}', call.message.chat.id, call.message.message_id)
 
             markup = types.InlineKeyboardMarkup()
-            btn1 = types.InlineKeyboardButton('disco', callback_data='disco')
-            btn2 = types.InlineKeyboardButton('boho', callback_data='boho')
-            btn3 = types.InlineKeyboardButton('y2k', callback_data='y2k')
-            btn4 = types.InlineKeyboardButton('vintage', callback_data='vintage')
+            btn1 = types.InlineKeyboardButton('Диско', callback_data='Диско')
+            btn2 = types.InlineKeyboardButton('Бохо', callback_data='Бохо')
+            btn3 = types.InlineKeyboardButton('Y2K', callback_data='Y2K')
+            btn4 = types.InlineKeyboardButton('Винтаж', callback_data='Винтаж')
             markup.row(btn1, btn2, btn3, btn4)
-            btn5 = types.InlineKeyboardButton('styles_continue', callback_data='styles_continue')
+            btn5 = types.InlineKeyboardButton('Продолжить', callback_data='styles_continue')
             markup.row(btn5)
             bot.send_message(call.message.chat.id, 'Укажите теги по стилю', reply_markup=markup)
 
@@ -133,12 +138,12 @@ def callback(call):
         bot.edit_message_text(f'Укажите теги по стилю', call.message.chat.id, call.message.message_id)
 
         markup = types.InlineKeyboardMarkup()
-        btn1 = types.InlineKeyboardButton('t-shorts', callback_data='t-shorts')
-        btn2 = types.InlineKeyboardButton('shoes', callback_data='shoes')
-        btn3 = types.InlineKeyboardButton('jampers', callback_data='jampers')
-        btn4 = types.InlineKeyboardButton('hoody', callback_data='hoody')
+        btn1 = types.InlineKeyboardButton('Футболки', callback_data='Футболки')
+        btn2 = types.InlineKeyboardButton('Куртки', callback_data='Куртки')
+        btn3 = types.InlineKeyboardButton('Платья', callback_data='Платья')
+        btn4 = types.InlineKeyboardButton('Юбки', callback_data='Юбки')
         markup.row(btn1, btn2, btn3, btn4)
-        btn5 = types.InlineKeyboardButton('type_continue', callback_data='type_continue')
+        btn5 = types.InlineKeyboardButton('Продолжить', callback_data='type_continue')
         markup.row(btn5)
         bot.send_message(call.message.chat.id, 'Укажите теги по типу', reply_markup=markup)
 
@@ -161,7 +166,7 @@ def callback(call):
 
     if call.data == 'accept':
         item.seller_id = call.message.chat.id
-        Seller.set_item(item)
+        Seller.set_item(call.message.chat.id, item)
         Seller.print_database()
         bot.send_message(call.message.chat.id, 'записано')
         action(call.message)
@@ -203,7 +208,7 @@ def set_link_of_seller(message):
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton('Да', callback_data='yes_link'),
                types.InlineKeyboardButton('Нет', callback_data='no_link'))
-    Seller.set_seller_name(message.chat.id, str(message.text), 'link')
+    Seller.set_seller_link(message.chat.id, str(message.text))
     bot.send_message(message.chat.id,
                      f'Это ваша ссылка?\n<b>{str(message.text)}</b>',
                      parse_mode='html',
@@ -269,7 +274,7 @@ def set_description(message):
     btn3 = types.InlineKeyboardButton('m', callback_data='m')
     btn4 = types.InlineKeyboardButton('l', callback_data='l')
     btn5 = types.InlineKeyboardButton('xl', callback_data='xl')
-    btn6 = types.InlineKeyboardButton('size_continue', callback_data='size_continue')
+    btn6 = types.InlineKeyboardButton('Продолжить', callback_data='size_continue')
     markup.row(btn1, btn2, btn3, btn4, btn5)
     markup.row(btn6)
 

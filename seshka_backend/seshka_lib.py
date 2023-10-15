@@ -3,12 +3,13 @@ from typing import TypeVar
 from dataclasses import dataclass
 import os
 import datetime
-
-
+#
+#
 # seller_sub_db: pd.DataFrame = pd.read_feather('databases/seller_names.feather')
 # seller_sub_db = pd.DataFrame(columns=['seller_id', 'seller_name', 'seller_link'])
+# seller_sub_db.to_feather('databases/seller_names.feather')
 # favorites_db: pd.DataFrame = pd.read_feather('databases/buyers_favorites.feather')
-
+#
 # directory = os.path.dirname(os.path.abspath(__file__))
 # items_db = pd.DataFrame(columns = ['pic', 'seller_id', 'title',
 #                                    'description', 'size', 'price',
@@ -59,6 +60,18 @@ class Seller:
         print(sellers_db)
 
     @staticmethod
+    def set_seller_link(seller_id: int, seller_link: str) -> None:
+        directory = os.path.dirname(os.path.abspath(__file__))
+        sellers_db: pd.DataFrame = pd.read_feather(directory + r'\databases\seller_names.feather')
+        # sellers_db = pd.DataFrame(columns=['seller_id', 'seller_name', 'seller_link'])
+        if sellers_db['seller_id'].eq(seller_id).any():
+            sellers_db.loc[(sellers_db.seller_id == seller_id), 'seller_link'] = seller_link
+            sellers_db.to_feather(directory + r'\databases\seller_names.feather')
+            return
+        sellers_db.to_feather(directory + r'\databases\seller_names.feather')
+        print(sellers_db)
+
+    @staticmethod
     def get_seller_name(seller_id: int) -> str:
         directory = os.path.dirname(os.path.abspath(__file__))
         sellers_db: pd.DataFrame = pd.read_feather(directory + r'\databases\seller_names.feather')
@@ -68,7 +81,7 @@ class Seller:
         return y.iloc[0].seller_name
 
     @staticmethod
-    def get_seller_link():
+    def get_seller_link(seller_id: int):
         directory = os.path.dirname(os.path.abspath(__file__))
         sellers_db: pd.DataFrame = pd.read_feather(directory + r'\databases\seller_names.feather')
         if not sellers_db['seller_id'].eq(seller_id).any():
@@ -106,7 +119,8 @@ class Seller:
         print(item_list)
         item: Item = Item(title=item_list.title, description=item_list.description,
                           photo=item_list.pic, it_size=item_list.size,  # type: ignore
-                          price=item_list.price, tags=item_list.tags)
+                          price=item_list.price, tags=item_list.tags,
+                              seller_id=items_db.iloc[i].seller_id)
         return item
 
     @staticmethod
@@ -119,7 +133,8 @@ class Seller:
         for i in indexes-1:
             item: Item = Item(title=items_db.iloc[i].title, description=items_db.iloc[i].description,
                               photo=items_db.iloc[i].pic, it_size=items_db.iloc[i].size,
-                              price=items_db.iloc[i].price, tags=items_db.iloc[i].tags)
+                              price=items_db.iloc[i].price, tags=items_db.iloc[i].tags,
+                              seller_id=items_db.iloc[i].seller_id)
             list_of_items.append(item)
             list_of_id.append(i)
         return list_of_items, list_of_id
