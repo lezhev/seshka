@@ -41,7 +41,10 @@ class Seller:
     def set_seller_name(seller_id: int, seller_name: str) -> None:
         directory = os.path.dirname(os.path.abspath(__file__))
         sellers_db: pd.DataFrame = pd.read_feather(directory + '\databases\seller_names.feather')
+        #sellers_db = pd.DataFrame(columns=['seller_id', 'seller_name'])
         if sellers_db['seller_id'].eq(seller_id).any():
+            sellers_db.loc[(sellers_db.seller_id == seller_id), 'seller_name'] = seller_name
+            sellers_db.to_feather(directory + '\databases\seller_names.feather')
             return
         sellers_db.loc[len(sellers_db.index) + 1] = [seller_id, seller_name]
         sellers_db.to_feather(directory + '\databases\seller_names.feather')
@@ -55,6 +58,14 @@ class Seller:
             return ''
         y = sellers_db[sellers_db['seller_id'].isin([seller_id])]
         return y.iloc[0].seller_name
+
+    @staticmethod
+    def del_seller_name(seller_id: int):
+        directory = os.path.dirname(os.path.abspath(__file__))
+        sellers_db: pd.DataFrame = pd.read_feather(directory + '\databases\seller_names.feather')
+        sellers_db = sellers_db[sellers_db.seller_id != seller_id]
+        print(sellers_db)
+        sellers_db.to_feather(directory + '\databases\seller_names.feather')
 
     # Adding item to items.feather
     @staticmethod

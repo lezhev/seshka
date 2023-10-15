@@ -5,20 +5,23 @@ from seshka_backend.seshka_lib import Seller, Buyer, Item
 
 class SellerTest(unittest.TestCase):
     def test_set_seller_name(self) -> None:
-        Seller.set_seller_name(2, 'Gosha')
+        Seller.set_seller_name(4, 'Grigorya')
 
     def test_set_item(self) -> None:
         item: Item = Item('1', 'a', 5, 'c', 'a', {'disco': 1, 'zombie': 1, 'game': 0})
         Seller.set_item(1, item)
 
     def test_get_seller_name(self) -> None:
-        Seller.get_seller_name(1)
+        Seller.get_seller_name(2)
 
     def test_get_item_text(self) -> None:
         print(Seller.get_item_text(0))
 
     def test_get_seller_items(self) -> None:
         print(Seller.get_seller_items(1))
+
+    def test_del_seller_name(self) -> None:
+        Seller.del_seller_name(4)
 
 class ItemTest(unittest.TestCase):
     def test_str(self) -> None:
