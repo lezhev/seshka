@@ -6,6 +6,7 @@ from seshka_backend.seshka_lib import Item, Seller
 bot = telebot.TeleBot(TOKEN_SELLER)
 
 
+
 @bot.message_handler(commands=['start'])
 def start(message):
 
@@ -27,7 +28,7 @@ def action(message):
     btn5 = types.InlineKeyboardButton('Оплата', callback_data='test')
     markup.row(btn4, btn5)
 
-    bot.send_message(message.chat.id, 'Привет, что вы хотите сделать?', reply_markup=markup)
+    bot.send_message(message.chat.id, 'Что вы хотите сделать?', reply_markup=markup)
 
 
 item = Item('name', 'photo', 0, 'description', 'size', {})
@@ -37,16 +38,22 @@ tag_dict = {'disco': 0, 'y2k': 0, 'boho': 0, 'vintage': 0, 't-shorts': 0, 'shoes
 @bot.callback_query_handler(func=lambda call: True)
 def callback(call):
     if call.data == 'Y':
+        bot.edit_message_text('Здравствуйте, вы хотите зарегистрировать ваш магазин?',
+                              call.message.chat.id, call.message.message_id)
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton('Да', callback_data='Yes'))
-        markup.add(types.InlineKeyboardButton('Нет', callback_data='N'))
+        markup.add(types.InlineKeyboardButton('Нет', callback_data='No'))
         bot.send_message(call.message.chat.id,
                          'Хорошо, вот список наших условий\n ....\n Вы с ними согласны?',
                          reply_markup=markup)
         bot.answer_callback_query(call.id)
 
     if call.data == 'Yes':
+        bot.edit_message_text('Хорошо, вот список наших условий\n ....\n Вы с ними согласны?',
+                              call.message.chat.id, call.message.message_id)
+
         bot.send_message(call.message.chat.id, 'Как вы будете называться?')
+
         bot.register_next_step_handler(call.message, set_name_of_seller)
 
     if call.data == 'N':
@@ -54,14 +61,20 @@ def callback(call):
         bot.delete_message(call.message.chat.id, call.message.message_id)
         bot.answer_callback_query(call.id)
 
+    if call.data == 'No':
+        bot.send_message(call.message.chat.id, 'Очень жаль, но вы всегда можете вернуться, написав "/start"')
+        bot.delete_message(call.message.chat.id, call.message.message_id)
+        bot.delete_message(call.message.chat.id, call.message.message_id-1)
+        bot.answer_callback_query(call.id)
+
     if call.data == 'no':
         bot.send_message(call.message.chat.id, 'Как вы будете называться?')
         bot.register_next_step_handler(call.message, set_name_of_seller)
 
     if call.data == 'yes':
-        # записываем имя в бэк
-        bot.send_message(call.message.chat.id, 'Хорошо, имя записано')
 
+        bot.edit_message_text('Теперь это ваше название',
+                              call.message.chat.id, call.message.message_id)
         markup = types.InlineKeyboardMarkup()
         btn1 = types.InlineKeyboardButton('Мои объявления', callback_data='test')
         markup.row(btn1)
@@ -75,6 +88,8 @@ def callback(call):
         bot.send_message(call.message.chat.id, 'Привет, что вы хотите сделать?', reply_markup=markup)
 
     if call.data == 'create':
+        bot.edit_message_text('СОЗДАЁМ ОБЪЯВЛЕНИЕ',
+                              call.message.chat.id, call.message.message_id)
         bot.send_message(call.message.chat.id, 'Укажите название вещи')
         bot.register_next_step_handler(call.message, set_title)
         bot.answer_callback_query(call.id)
@@ -126,12 +141,14 @@ def callback(call):
 
         bot.send_message(call.message.chat.id, 'отлично, вот ваше объявление')
         item.tags = tag_dict
-        bot.send_message(call.message.chat.id, item.__str__(), reply_markup=markup, parse_mode='Markdown')
+        bot.send_photo(call.message.chat.id, item.photo, item.__str__(), reply_markup=markup, parse_mode='Markdown')
 
         bot.answer_callback_query(call.id)
 
     if call.data == 'accept':
         Seller.set_item(call.message.chat.id, item)
+        Seller.print_database()
+        bot.send_message(call.message.chat.id, 'пон')
 
     if call.data == 'cancel':
 
@@ -142,7 +159,9 @@ def callback(call):
         bot.send_message(call.message.chat.id, 'Точно отменить?', reply_markup=markup)
 
     if call.data == 'delete':
-        pass
+        for i in range(15):
+            bot.delete_message(call.message.chat.id, call.message.message_id-i)
+        action(call.message)
 
     if call.data == 'remove':
         pass
@@ -153,8 +172,11 @@ def callback(call):
     if call.data in tag_dict:
         if tag_dict[call.data] == 0:
             tag_dict[call.data] = 1
+            bot.send_message(call.message.chat.id, str(tag_dict))
         else:
             tag_dict[call.data] = 0
+
+            bot.send_message(call.message.chat.id, str(tag_dict))
         print(tag_dict)
         bot.answer_callback_query(call.id)
 
@@ -164,7 +186,7 @@ def set_name_of_seller(message):
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton('Да', callback_data='yes'),
                types.InlineKeyboardButton('Нет', callback_data='no'))
-
+    Seller.set_seller_name(message.chat.id, str(message.text))
     bot.send_message(message.chat.id,
                      f'Это ваше название?\n <b>{str(message.text)}</b>',
                      parse_mode='html',
