@@ -4,8 +4,9 @@ from dataclasses import dataclass
 import os
 import datetime
 
-
+#
 # seller_sub_db: pd.DataFrame = pd.read_feather('databases/seller_names.feather')
+# seller_sub_db = pd.DataFrame(columns=['seller_id'])
 # favorites_db: pd.DataFrame = pd.read_feather('databases/buyers_favorites.feather')
 
 # directory = os.path.dirname(os.path.abspath(__file__))
@@ -45,8 +46,8 @@ class Seller:
     @staticmethod
     def set_seller_name(seller_id: int, seller_name: str, seller_link: str) -> None:
         directory = os.path.dirname(os.path.abspath(__file__))
-        sellers_db: pd.DataFrame = pd.read_feather(directory + r'\databases\seller_names.feather')
-        # sellers_db = pd.DataFrame(columns=['seller_id', 'seller_name', 'seller_link'])
+        # sellers_db: pd.DataFrame = pd.read_feather(directory + r'\databases\seller_names.feather')
+        sellers_db = pd.DataFrame(columns=['seller_id', 'seller_name', 'seller_link'])
         if sellers_db['seller_id'].eq(seller_id).any():
             sellers_db.loc[(sellers_db.seller_id == seller_id), 'seller_name'] = seller_name
             sellers_db.loc[(sellers_db.seller_id == seller_id), 'seller_link'] = seller_link

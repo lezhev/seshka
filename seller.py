@@ -32,6 +32,7 @@ def action(message):
     markup.row(btn4, btn5)
 
     bot.send_message(message.chat.id, 'Что вы хотите сделать?', reply_markup=markup)
+    bot.register_next_step_handler(message, action)
 
 
 item = Item('name', 'photo', 0, 'description', 'size', {})
@@ -41,9 +42,7 @@ tag_dict = {'disco': 0, 'y2k': 0, 'boho': 0, 'vintage': 0, 't-shorts': 0, 'shoes
 @bot.callback_query_handler(func=lambda call: True)
 def callback(call):
     if call.data == 'my_ad':
-        print('gore')
         item_list, id_list = Seller.get_seller_items(call.message.chat.id)
-        print('gore')
         for items in item_list:
             bot.send_photo(call.message.chat.id, items.photo, items.__str__(), parse_mode='Markdown')
 
