@@ -11,6 +11,9 @@ class SellerTest(unittest.TestCase):
         item: Item = Item('1', 'a', 5, 'c', 'a', {'disco': 1, 'zombie': 1, 'game': 0})
         Seller.set_item(1, item)
 
+    def test_get_seller_name(self) -> None:
+        Seller.get_seller_name(1)
+
     def test_get_item_text(self) -> None:
         print(Seller.get_item_text(0))
 

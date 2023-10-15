@@ -41,11 +41,20 @@ class Seller:
     def set_seller_name(seller_id: int, seller_name: str) -> None:
         directory = os.path.dirname(os.path.abspath(__file__))
         sellers_db: pd.DataFrame = pd.read_feather(directory + '\databases\seller_names.feather')
-        if not sellers_db[sellers_db['seller_id'] == seller_id].empty:
+        if sellers_db['seller_id'].eq(seller_id).any():
             return
         sellers_db.loc[len(sellers_db.index) + 1] = [seller_id, seller_name]
         sellers_db.to_feather(directory + '\databases\seller_names.feather')
         print(sellers_db)
+
+    @staticmethod
+    def get_seller_name(seller_id: int) -> str:
+        directory = os.path.dirname(os.path.abspath(__file__))
+        sellers_db: pd.DataFrame = pd.read_feather(directory + '\databases\seller_names.feather')
+        if not sellers_db['seller_id'].eq(seller_id).any():
+            return ''
+        y = sellers_db[sellers_db['seller_id'].isin([seller_id])]
+        return y.iloc[0].seller_name
 
     # Adding item to items.feather
     @staticmethod
@@ -88,7 +97,8 @@ class Seller:
     def print_database() -> None:
         directory = os.path.dirname(os.path.abspath(__file__))
         items_db: pd.DataFrame = pd.read_feather(directory + '\databases\items.feather')
-        print(items_db)
+        sellers_db: pd.DataFrame = pd.read_feather(directory + '\databases\seller_names.feather')
+        print(f'Items:\n{items_db}\nSellers\n{sellers_db}')
 
 
 class Buyer:
