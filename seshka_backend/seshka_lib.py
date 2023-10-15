@@ -148,7 +148,7 @@ class Buyer:
         indexes = subs_db[subs_db['buyer_id'] == chat_id].index
         shop_ids: list[int] = []
         for i in indexes:
-            shop_ids.append(i)
+            shop_ids.append(i + 1)
         print(shop_ids)
         return shop_ids
 
@@ -160,4 +160,21 @@ class Buyer:
         if subs_db.seller_id.eq(seller_id).any():
             return True
         return False
+
+    @staticmethod
+    def add_sub(chat_id: int, seller_id: int) -> None:
+        directory = os.path.dirname(os.path.abspath(__file__))
+        subs_db: pd.DataFrame = pd.read_feather(directory + r'\databases\buyers_subscription.feather')
+        subs_db_test = subs_db[subs_db.buyer_id == chat_id]
+        if subs_db_test.seller_id.eq(seller_id).any():
+            return
+        subs_db.loc[len(subs_db.index) + 1] = [chat_id, seller_id]
+        print(subs_db)
+        subs_db.to_feather(directory + r'\databases\buyers_subscription.feather')
+
+    @staticmethod
+    def print_database() -> None:
+        directory = os.path.dirname(os.path.abspath(__file__))
+        subs_db: pd.DataFrame = pd.read_feather(directory + r'\databases\buyers_subscription.feather')
+        print(f'Subs:\n{subs_db}\n')
 

@@ -34,6 +34,12 @@ class BuyTest(unittest.TestCase):
     def test_get_sub(self) -> None:
         print(Buyer.get_sub(1, 2))
 
+    def test_add_sub(self) -> None:
+        Buyer.add_sub(1, 4)
+
+    def test_db(self) -> None:
+        Buyer.print_database()
+
     def test_get_favourite(self) -> None:
         Buyer.get_favourite(1)
 
