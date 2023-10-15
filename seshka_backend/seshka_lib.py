@@ -27,7 +27,7 @@ class Item:
     photo: str
     price: int
     description: str
-    size: str
+    it_size: str
     tags: dict
 
     def __str__(self) -> str:
@@ -36,7 +36,7 @@ class Item:
             if self.tags[key] == 1:
                 tag_list.append(key)
         tag_str: str = ', '.join(tag_list)
-        result = (f'*Имя: {self.title}*\nРазмер: {self.size}\n'
+        result = (f'*Имя: {self.title}*\nРазмер: {self.it_size}\n'
                   f'Описание: {self.description}\n'
                   f'Цена: _{self.price} руб._\nТэги: {tag_str}')
         return result
@@ -92,7 +92,7 @@ class Seller:
         current_date = datetime.date.today().isoformat()
         items_db.loc[len(items_db.index) + 1] = [item.photo, seller_id,
                                                  item.title, item.description,
-                                                 item.size, item.price,
+                                                 item.it_size, item.price,
                                                  item.tags, current_date]
         items_db.to_feather(directory + r'\databases\items.feather')
         # print(items_db)
@@ -104,7 +104,7 @@ class Seller:
         item_list = items_db.iloc[index]
         print(item_list)
         item: Item = Item(title=item_list.title, description=item_list.description,
-                          photo=item_list.pic, size=item_list.size,  # type: ignore
+                          photo=item_list.pic, it_size=item_list.size,  # type: ignore
                           price=item_list.price, tags=item_list.tags)
         return item
 
@@ -117,7 +117,7 @@ class Seller:
         list_of_id: list[int] = []
         for i in indexes-1:
             item: Item = Item(title=items_db.iloc[i].title, description=items_db.iloc[i].description,
-                              photo=items_db.iloc[i].pic, size=items_db.iloc[i].size,
+                              photo=items_db.iloc[i].pic, it_size=items_db.iloc[i].size,
                               price=items_db.iloc[i].price, tags=items_db.iloc[i].tags)
             list_of_items.append(item)
             list_of_id.append(i)
@@ -228,7 +228,7 @@ class Buyer:
         list_of_id: list[int] = []
         for i in indexes:
             item: Item = Item(title=items_db.loc[i].title, description=items_db.loc[i].description,
-                              photo=items_db.loc[i].pic, size=items_db.loc[i].size,
+                              photo=items_db.loc[i].pic, it_size=items_db.loc[i]['size'],
                               price=items_db.loc[i].price, tags=items_db.loc[i].tags)
             list_of_items.append(item)
             list_of_id.append(i)
