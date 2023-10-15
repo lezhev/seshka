@@ -114,7 +114,7 @@ class Seller:
         indexes = items_db[items_db['seller_id'] == chat_id].index
         list_of_items: list[Item] = []
         list_of_id: list[int] = []
-        for i in indexes:
+        for i in indexes-1:
             item: Item = Item(title=items_db.iloc[i].title, description=items_db.iloc[i].description,
                               photo=items_db.iloc[i].pic, size=items_db.iloc[i].size,
                               price=items_db.iloc[i].price, tags=items_db.iloc[i].tags)

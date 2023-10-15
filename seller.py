@@ -76,7 +76,7 @@ def callback(call):
         bot.edit_message_text('Теперь это ваше название',
                               call.message.chat.id, call.message.message_id)
         markup = types.InlineKeyboardMarkup()
-        btn1 = types.InlineKeyboardButton('Мои объявления', callback_data='test')
+        btn1 = types.InlineKeyboardButton('Мои объявления', callback_data='my_ad')
         markup.row(btn1)
         btn2 = types.InlineKeyboardButton('Создать объявление', callback_data='create')
         btn3 = types.InlineKeyboardButton('Удалить объявление', callback_data='remove')
@@ -148,7 +148,8 @@ def callback(call):
     if call.data == 'accept':
         Seller.set_item(call.message.chat.id, item)
         Seller.print_database()
-        bot.send_message(call.message.chat.id, 'пон')
+        bot.send_message(call.message.chat.id, 'записано')
+        action(call.message)
 
     if call.data == 'cancel':
 
@@ -180,13 +181,17 @@ def callback(call):
         print(tag_dict)
         bot.answer_callback_query(call.id)
 
+    if call.data == 'my_ad':
+        item_list, id_list = Seller.get_seller_items(call.message.chat.id)
+        for items in item_list:
+            bot.send_photo(call.message.chat.id, items.photo, items.__str__(), parse_mode='Markdown')
 
 @bot.message_handler()
 def set_name_of_seller(message):
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton('Да', callback_data='yes'),
                types.InlineKeyboardButton('Нет', callback_data='no'))
-    Seller.set_seller_name(message.chat.id, str(message.text))
+    Seller.set_seller_name(message.chat.id, str(message.text), 'link')
     bot.send_message(message.chat.id,
                      f'Это ваше название?\n <b>{str(message.text)}</b>',
                      parse_mode='html',
