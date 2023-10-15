@@ -6,20 +6,23 @@ from seshka_backend.seshka_lib import Item, Seller
 bot = telebot.TeleBot(TOKEN_SELLER)
 
 
-
 @bot.message_handler(commands=['start'])
 def start(message):
 
-    markup = types.InlineKeyboardMarkup()
-    markup.row(types.InlineKeyboardButton('Да', callback_data='Y'),
-               types.InlineKeyboardButton('Нет', callback_data='N'))
-    bot.send_message(message.chat.id, 'Здравствуйте, вы хотите зарегистрировать ваш магазин?', reply_markup=markup)
+    if Seller.get_seller_name(message.chat.id) == '':
+
+        markup = types.InlineKeyboardMarkup()
+        markup.row(types.InlineKeyboardButton('Да', callback_data='Y'),
+                   types.InlineKeyboardButton('Нет', callback_data='N'))
+        bot.send_message(message.chat.id, 'Здравствуйте, вы хотите зарегистрировать ваш магазин?', reply_markup=markup)
+    else:
+        action(message)
 
 
 @bot.message_handler(commands=['action'])
 def action(message):
     markup = types.InlineKeyboardMarkup()
-    btn1 = types.InlineKeyboardButton('Мои объявления', callback_data='test')
+    btn1 = types.InlineKeyboardButton('Мои объявления', callback_data='my_ad')
     markup.row(btn1)
     btn2 = types.InlineKeyboardButton('Создать объявление', callback_data='create')
     btn3 = types.InlineKeyboardButton('Удалить объявление', callback_data='remove')
@@ -37,6 +40,14 @@ tag_dict = {'disco': 0, 'y2k': 0, 'boho': 0, 'vintage': 0, 't-shorts': 0, 'shoes
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback(call):
+    if call.data == 'my_ad':
+        print('gore')
+        item_list, id_list = Seller.get_seller_items(call.message.chat.id)
+        print('gore')
+        for items in item_list:
+            bot.send_photo(call.message.chat.id, items.photo, items.__str__(), parse_mode='Markdown')
+
+
     if call.data == 'Y':
         bot.edit_message_text('Здравствуйте, вы хотите зарегистрировать ваш магазин?',
                               call.message.chat.id, call.message.message_id)
@@ -160,31 +171,26 @@ def callback(call):
         bot.send_message(call.message.chat.id, 'Точно отменить?', reply_markup=markup)
 
     if call.data == 'delete':
-        for i in range(15):
+        for i in range(8):
             bot.delete_message(call.message.chat.id, call.message.message_id-i)
         action(call.message)
-
-    if call.data == 'remove':
-        pass
-        Seller.remove()
-
-        #bot.answer_callback_query(call.id)
 
     if call.data in tag_dict:
         if tag_dict[call.data] == 0:
             tag_dict[call.data] = 1
-            bot.send_message(call.message.chat.id, str(tag_dict))
         else:
             tag_dict[call.data] = 0
-
-            bot.send_message(call.message.chat.id, str(tag_dict))
         print(tag_dict)
         bot.answer_callback_query(call.id)
 
-    if call.data == 'my_ad':
+    if call == 'remove':
         item_list, id_list = Seller.get_seller_items(call.message.chat.id)
+        markup = types.InlineKeyboardMarkup()
+        markup.add()
         for items in item_list:
-            bot.send_photo(call.message.chat.id, items.photo, items.__str__(), parse_mode='Markdown')
+
+            bot.send_photo(call.message.chat.id, items.photo, items.__str__(), parse_mode='Markdown', reply_markup='markup')
+
 
 @bot.message_handler()
 def set_name_of_seller(message):
@@ -193,7 +199,7 @@ def set_name_of_seller(message):
                types.InlineKeyboardButton('Нет', callback_data='no'))
     Seller.set_seller_name(message.chat.id, str(message.text), 'link')
     bot.send_message(message.chat.id,
-                     f'Это ваше название?\n <b>{str(message.text)}</b>',
+                     f'Это ваше название?\n<b>{str(message.text)}</b>',
                      parse_mode='html',
                      reply_markup=markup)
 
@@ -225,13 +231,13 @@ def set_photo(message):
 @bot.message_handler(content_types=['text'])
 def set_price(message):
     try:
-        int(message.text)
-    except TypeError:
+        float(message.text)
+    except TypeError or ValueError:
         bot.send_message(message.chat.id, 'неверный  формат, попробуйте снова')
-        bot.register_next_step_handler(message, set_photo)
+        bot.register_next_step_handler(message, set_price)
         return
 
-    item.price = int(message.text)
+    item.price = float(message.text)
     bot.send_message(message.chat.id, 'Опишите эту вещь')
     bot.register_next_step_handler(message, set_description)
 

@@ -222,8 +222,6 @@ class Buyer:
     def get_all_items() -> tuple[list[Item], list[int]]:
         directory = os.path.dirname(os.path.abspath(__file__))
         items_db: pd.DataFrame = pd.read_feather(directory + r'\databases\items.feather')
-        items_db.sort_values(by = 'ad_date', ascending= False, inplace=True)
-        print(items_db)
         indexes = items_db.index
         list_of_items: list[Item] = []
         list_of_id: list[int] = []
