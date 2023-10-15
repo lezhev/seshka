@@ -30,15 +30,12 @@ def action(message):
     btn2 = types.InlineKeyboardButton('Создать объявление', callback_data='create')
     btn3 = types.InlineKeyboardButton('Удалить объявление', callback_data='remove')
     markup.row(btn2, btn3)
-    btn4 = types.InlineKeyboardButton('Уведомления', callback_data='test')
-    btn5 = types.InlineKeyboardButton('Оплата', callback_data='test')
-    markup.row(btn4, btn5)
 
     bot.send_message(message.chat.id, 'Что вы хотите сделать?', reply_markup=markup)
     # bot.register_next_step_handler(message, action)
 
 
-item = Item('name', 'photo', 0, 'description', 'size', {})
+item = Item('name', 'photo', 0, 'description', 'size', {}, 0)
 tag_dict = {'disco': 0, 'y2k': 0, 'boho': 0, 'vintage': 0, 't-shorts': 0, 'shoes': 0, 'jampers': 0, 'hoody': 0}
 
 
@@ -115,20 +112,20 @@ def callback(call):
         bot.answer_callback_query(call.id)
 
     if call.data == 'size_continue':
+        if item.it_size != 'size':
+            bot.edit_message_text(f'Укажите размер вещи: {item.it_size.upper()}', call.message.chat.id, call.message.message_id)
 
-        bot.edit_message_text(f'Укажите размер вещи: {item.it_size.upper()}', call.message.chat.id, call.message.message_id)
+            markup = types.InlineKeyboardMarkup()
+            btn1 = types.InlineKeyboardButton('disco', callback_data='disco')
+            btn2 = types.InlineKeyboardButton('boho', callback_data='boho')
+            btn3 = types.InlineKeyboardButton('y2k', callback_data='y2k')
+            btn4 = types.InlineKeyboardButton('vintage', callback_data='vintage')
+            markup.row(btn1, btn2, btn3, btn4)
+            btn5 = types.InlineKeyboardButton('styles_continue', callback_data='styles_continue')
+            markup.row(btn5)
+            bot.send_message(call.message.chat.id, 'Укажите теги по стилю', reply_markup=markup)
 
-        markup = types.InlineKeyboardMarkup()
-        btn1 = types.InlineKeyboardButton('disco', callback_data='disco')
-        btn2 = types.InlineKeyboardButton('boho', callback_data='boho')
-        btn3 = types.InlineKeyboardButton('y2k', callback_data='y2k')
-        btn4 = types.InlineKeyboardButton('vintage', callback_data='vintage')
-        markup.row(btn1, btn2, btn3, btn4)
-        btn5 = types.InlineKeyboardButton('styles_continue', callback_data='styles_continue')
-        markup.row(btn5)
-        bot.send_message(call.message.chat.id, 'Укажите теги по стилю', reply_markup=markup)
-
-        bot.answer_callback_query(call.id)
+            bot.answer_callback_query(call.id)
 
     if call.data == 'styles_continue':
 
@@ -162,7 +159,8 @@ def callback(call):
         bot.answer_callback_query(call.id)
 
     if call.data == 'accept':
-        Seller.set_item(call.message.chat.id, item)
+        item.seller_id = call.message.chat.id
+        Seller.set_item(item)
         Seller.print_database()
         bot.send_message(call.message.chat.id, 'записано')
         action(call.message)
@@ -240,8 +238,8 @@ def set_photo(message):
 def set_price(message):
     try:
         float(message.text)
-    except TypeError or ValueError:
-        bot.send_message(message.chat.id, 'неверный  формат, попробуйте снова')
+    except ValueError:
+        bot.send_message(message.chat.id, 'Неверный  формат, попробуйте снова')
         bot.register_next_step_handler(message, set_price)
         return
 
