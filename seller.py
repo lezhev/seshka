@@ -43,9 +43,12 @@ tag_dict = {'disco': 0, 'y2k': 0, 'boho': 0, 'vintage': 0, 't-shorts': 0, 'shoes
 def callback(call):
     if call.data == 'my_ad':
         item_list, id_list = Seller.get_seller_items(call.message.chat.id)
+        count = 0
         for items in item_list:
             bot.send_photo(call.message.chat.id, items.photo, items.__str__(), parse_mode='Markdown')
-
+            count += 1
+        bot.edit_message_text('text', call.message.chat.id, call.message.message_id-count)
+        action(call.message)
 
     if call.data == 'Y':
         bot.edit_message_text('Здравствуйте, вы хотите зарегистрировать ваш магазин?',
@@ -182,13 +185,16 @@ def callback(call):
         print(tag_dict)
         bot.answer_callback_query(call.id)
 
-    if call == 'remove':
+    if call.data == 'remove':
         item_list, id_list = Seller.get_seller_items(call.message.chat.id)
         markup = types.InlineKeyboardMarkup()
-        markup.add()
+        markup.add(types.InlineKeyboardButton('Удалить', callback_data='del'))
         for items in item_list:
 
             bot.send_photo(call.message.chat.id, items.photo, items.__str__(), parse_mode='Markdown', reply_markup='markup')
+
+    if call.data == 'del':
+        item_list, id_list = Seller.get_seller_items(call.message.chat.id)
 
 
 @bot.message_handler()
