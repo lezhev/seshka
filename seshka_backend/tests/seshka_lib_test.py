@@ -26,6 +26,18 @@ class SellerTest(unittest.TestCase):
     def test_del_item(self) -> None:
         Seller.del_seller_items(16)
 
+
+class BuyTest(unittest.TestCase):
+    def test_get_subs(self) -> None:
+        Buyer.get_subs(1)
+
+    def test_get_sub(self) -> None:
+        print(Buyer.get_sub(1, 2))
+
+    def test_get_favourite(self) -> None:
+        Buyer.get_favourite(1)
+
+
 class ItemTest(unittest.TestCase):
     def test_str(self) -> None:
         item: Item = Item('1', 'a', 5, 'c', 'a', {'disco': 1, 'zombie': 1, 'game': 0})
@@ -33,6 +45,8 @@ class ItemTest(unittest.TestCase):
 
     def test_print_db(self) -> None:
         Seller.print_database()
+
+
 
 
 
