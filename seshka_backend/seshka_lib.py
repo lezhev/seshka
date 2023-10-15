@@ -230,13 +230,37 @@ class Buyer:
         for i in indexes:
             item: Item = Item(title=items_db.loc[i].title, description=items_db.loc[i].description,
                               photo=items_db.loc[i].pic, it_size=items_db.loc[i]['size'],
-                              price=items_db.loc[i].price, tags=items_db.loc[i].tags)
+                              price=items_db.loc[i].price, tags=items_db.loc[i].tags,
+                              seller_id=items_db.loc[i].seller_id)
             list_of_items.append(item)
             list_of_id.append(i)
         list_of_items.reverse()
         list_of_id.reverse()
         return list_of_items, list_of_id
 
+    @staticmethod
+    def get_subs_items(chat_id: int) -> tuple[list[Item], list[int]]:
+        directory = os.path.dirname(os.path.abspath(__file__))
+        subs_db: pd.DataFrame = pd.read_feather(directory + r'\databases\buyers_subscription.feather')
+        items_db: pd.DataFrame = pd.read_feather(directory + r'\databases\items.feather')
+        sellers_db = subs_db[subs_db['buyer_id'] == chat_id]
+        sellers = []
+        for i in sellers_db.seller_id:
+            sellers.append(i)
+        #items_db = items_db[items_db['seller_id' in sellers]]
+        items = items_db[items_db['seller_id'].isin(sellers)]
+        indexes = items.index
+        print(items, indexes)
+        list_of_items: list[Item] = []
+        list_of_id: list[int] = []
+        for i in indexes:
+            item: Item = Item(title=items.loc[i].title, description=items.loc[i].description,
+                              photo=items.loc[i].pic, it_size=items.loc[i]['size'],
+                              price=items.loc[i].price, tags=items.loc[i].tags,
+                              seller_id=items.loc[i].seller_id)
+            list_of_items.append(item)
+            list_of_id.append(i)
+        return list_of_items, list_of_id
 
     @staticmethod
     def print_database() -> None:
@@ -245,5 +269,7 @@ class Buyer:
         favs_db: pd.DataFrame = pd.read_feather(directory + r'\databases\buyers_favorites.feather')
         print(f'Subs:\n{subs_db}\nFavs\n{favs_db}')
 
-
+item: Item = Item('1', 'a', 5, 'c', 'a', {'disco': 1, 'zombie': 1, 'game': 0}, 4)
+Seller.set_item(4, item)
+print(Buyer.get_subs_items(1))
 
